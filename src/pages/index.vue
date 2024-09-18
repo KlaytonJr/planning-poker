@@ -62,7 +62,7 @@ export default {
   },
   mounted() {
     // Conectando ao servidor WebSocket
-    this.socket = io('https://backend-wild-dust-389.fly.dev', {
+    this.socket = io('wss://backend-wild-dust-389.fly.dev', {
       "transports": ['websocket', "polling"]
     });
     // this.socket = io('http://localhost:3010');
