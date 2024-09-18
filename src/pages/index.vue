@@ -15,21 +15,17 @@
         <h2 class="mb-6">Olá, {{ username }}</h2>
         
         <!-- Se ainda não votou, mostre as opções de voto -->
-        <div v-if="!voted">
+        <div>
           <h3>Escolha seu voto:</h3>
-          <button v-for="value in fibonacci" :key="value" @click="sendVote(value)" class="options-vote mt-4">
+          <button v-for="value in fibonacci" :key="value" @click="sendVote(value)" :class="['options-vote mt-4', { selected: userVote === value }]">
             {{ value }}
           </button>
         </div>
   
-        <!-- Mostre o voto se já votou -->
-        <div v-if="voted" class="my-3">
-          <h3>Você votou: {{ userVote }}</h3>
-        </div>
-  
         <!-- Botão para o moderador revelar os votos -->
-        <div v-if="isModerator" class="d-flex items-center justify-center w-100 my-4">
+        <div v-if="isModerator" class="d-flex items-center justify-center w-100 my-4 ga-4">
           <button @click="revealVotes" class="reveal-btn">Revelar Votos</button>
+          <button v-if="complete" @click="resetVotes" class="reset-btn">Reiniciar Votação</button>
         </div>
   
         <!-- Lista de usuários com seus votos -->
@@ -59,6 +55,7 @@ export default {
       users: [], // Lista de usuários e votos
       votesVisible: false, // Controla a visibilidade dos votos
       voted: false, // Se o usuário já votou ou não
+      complete: false, // Se o usuário já votou ou não
       userVote: null, // Armazena o voto do usuário
       isModerator: false // Se o usuário é moderador
     };
@@ -68,7 +65,7 @@ export default {
     this.socket = io('https://backend-wild-dust-389.fly.dev', {
       "transports": ['websocket', "polling"]
     });
-    // this.socket = io('http://localhost:3010/');
+    // this.socket = io('http://localhost:3010');
 
     // Recebe a lista de usuários atualizada
     this.socket.on('userListUpdate', (users) => {
@@ -78,6 +75,13 @@ export default {
     // Controla a revelação dos votos
     this.socket.on('revealVotes', (visible) => {
       this.votesVisible = visible;
+    });
+
+    this.socket.on('resetVotes', () => {
+      this.userVote = null;
+      this.voted = false;
+      this.complete = false;
+      this.votesVisible = false;
     });
   },
   methods: {
@@ -99,6 +103,11 @@ export default {
     revealVotes() {
       // O moderador decide revelar os votos
       this.socket.emit('revealVotes');
+      this.complete = true;
+    },
+    resetVotes() {
+      // O moderador decide limpar os votos e reiniciar a votação
+      this.socket.emit('resetVotes'); // Envia o evento para o servidor
     }
   }
 };
@@ -136,8 +145,22 @@ input {
   margin: 0 15px;
 }
 
+.selected {
+  background-color: #fff;
+  color: #000;
+  border-color: #fff;
+}
+
 .reveal-btn {
   border: 1px solid white;
+  border-radius: 5px;
+  padding: 5px 10px;
+}
+
+.reset-btn {
+  border: 1px solid white;
+  background-color: #fff;
+  color: #000;
   border-radius: 5px;
   padding: 5px 10px;
 }
