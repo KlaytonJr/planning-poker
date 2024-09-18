@@ -1,45 +1,48 @@
 <template>
   <div>
-    <h1>Votação Fibonacci</h1>
+    <h1 class="text-center mt-4">Votação Fibonacci</h1>
     
-    <!-- Se o usuário não entrou com um nome, pedir para entrar -->
-    <div v-if="!username">
-      <input v-model="tempUsername" placeholder="Digite seu nome" />
-      <button @click="joinRoom">Entrar</button>
-    </div>
-    
-    <!-- Interface de votação para quem já entrou -->
-    <div v-else>
-      <h2>Olá, {{ username }}</h2>
+    <section class="container">
+
+      <!-- Se o usuário não entrou com um nome, pedir para entrar -->
+      <div v-if="!username">
+        <input v-model="tempUsername" placeholder="Digite seu nome" />
+        <button @click="joinRoom">Entrar</button>
+      </div>
       
-      <!-- Se ainda não votou, mostre as opções de voto -->
-      <div v-if="!voted">
-        <h3>Escolha seu voto:</h3>
-        <button v-for="value in fibonacci" :key="value" @click="sendVote(value)">
-          {{ value }}
-        </button>
+      <!-- Interface de votação para quem já entrou -->
+      <div v-else class="voting">
+        <h2 class="mb-6">Olá, {{ username }}</h2>
+        
+        <!-- Se ainda não votou, mostre as opções de voto -->
+        <div v-if="!voted">
+          <h3>Escolha seu voto:</h3>
+          <button v-for="value in fibonacci" :key="value" @click="sendVote(value)" class="options-vote mt-4">
+            {{ value }}
+          </button>
+        </div>
+  
+        <!-- Mostre o voto se já votou -->
+        <div v-if="voted" class="my-3">
+          <h3>Você votou: {{ userVote }}</h3>
+        </div>
+  
+        <!-- Botão para o moderador revelar os votos -->
+        <div v-if="isModerator" class="d-flex items-center justify-center w-100 my-4">
+          <button @click="revealVotes" class="reveal-btn">Revelar Votos</button>
+        </div>
+  
+        <!-- Lista de usuários com seus votos -->
+        <h3>Votos em tempo real:</h3>
+        <ul>
+          <li v-for="user in users" :key="user.id">
+            {{ user.name }}: 
+            <span v-if="votesVisible">{{ user.vote }}</span>
+            <span v-else>{{ user.vote ? 'Votou' : 'Aguardando voto...' }}</span>
+          </li>
+        </ul>
       </div>
-
-      <!-- Mostre o voto se já votou -->
-      <div v-if="voted">
-        <h3>Você votou: {{ userVote }}</h3>
-      </div>
-
-      <!-- Botão para o moderador revelar os votos -->
-      <div v-if="isModerator">
-        <button @click="revealVotes">Revelar Votos</button>
-      </div>
-
-      <!-- Lista de usuários com seus votos -->
-      <h3>Votos em tempo real:</h3>
-      <ul>
-        <li v-for="user in users" :key="user.id">
-          {{ user.name }}: 
-          <span v-if="votesVisible">{{ user.vote }}</span>
-          <span v-else>{{ user.vote ? 'Votou' : 'Aguardando voto...' }}</span>
-        </li>
-      </ul>
-    </div>
+    </section>
   </div>
 </template>
 
@@ -100,3 +103,42 @@ export default {
   }
 };
 </script>
+
+<style>
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  height: 90vh;
+  width: 100%;
+}
+
+.voting {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+input {
+  border: 1px solid white;
+  border-radius: 5px;
+  padding: 5px 10px;
+  margin: 0 15px;
+}
+
+.options-vote {
+  border: 1px solid white;
+  border-radius: 50px;
+  width: 50px;
+  height: 50px;
+  margin: 0 15px;
+}
+
+.reveal-btn {
+  border: 1px solid white;
+  border-radius: 5px;
+  padding: 5px 10px;
+}
+</style>
