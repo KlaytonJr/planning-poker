@@ -75,6 +75,7 @@ export default {
     // Controla a revelação dos votos
     this.socket.on('revealVotes', (visible) => {
       this.votesVisible = visible;
+      this.complete = true;
     });
 
     this.socket.on('resetVotes', () => {
@@ -103,7 +104,6 @@ export default {
     revealVotes() {
       // O moderador decide revelar os votos
       this.socket.emit('revealVotes');
-      this.complete = true;
     },
     resetVotes() {
       // O moderador decide limpar os votos e reiniciar a votação
